@@ -3,6 +3,15 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ShieldCheck, Sparkles, UserCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
+function getSavedUsers() {
+  try {
+    const users = JSON.parse(localStorage.getItem("sl_users"));
+    return Array.isArray(users) ? users : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function Login() {
   const [searchParams] = useSearchParams();
   const { login, registeredUsers } = useAuth();
@@ -10,49 +19,82 @@ export default function Login() {
 
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [savedAccounts, setSavedAccounts] = useState(() => getSavedUsers());
 
   const [form, setForm] = useState(() => {
-    const justCreated = JSON.parse(localStorage.getItem("sl_last_signup"));
-    if (justCreated) {
-      return {
-        email: justCreated.email,
-        password: justCreated.password,
-        role: justCreated.role
-      };
-    }
+    try {
+      const justCreated = JSON.parse(localStorage.getItem("sl_last_signup"));
+      if (justCreated && justCreated.email) {
+        return {
+          email: justCreated.email,
+          password: justCreated.password || "",
+          role: justCreated.role || "user"
+        };
+      }
 
-    const queryRole = searchParams.get("role");
-    const lastLogin = JSON.parse(localStorage.getItem("sl_last_login"));
-    if (lastLogin && (!queryRole || lastLogin.role === queryRole)) {
-      return {
-        email: lastLogin.email,
-        password: lastLogin.password,
-        role: lastLogin.role
-      };
+      const queryRole = searchParams.get("role");
+      const lastLogin = JSON.parse(localStorage.getItem("sl_last_login"));
+      if (lastLogin && lastLogin.email && (!queryRole || lastLogin.role === queryRole)) {
+        return {
+          email: lastLogin.email,
+          password: lastLogin.password || "",
+          role: lastLogin.role || "user"
+        };
+      }
+
+      const storedUsers = getSavedUsers();
+      const roleFiltered = queryRole
+        ? [...storedUsers].reverse().find((u) => u.role === queryRole)
+        : [...storedUsers].reverse()[0];
+
+      if (roleFiltered) {
+        return {
+          email: roleFiltered.email,
+          password: roleFiltered.password || "",
+          role: roleFiltered.role || "user"
+        };
+      }
+    } catch {
+      // Fallback to empty credentials
     }
 
     return {
       email: "",
       password: "",
-      role: queryRole === "admin" ? "admin" : "user"
+      role: searchParams.get("role") === "admin" ? "admin" : "user"
     };
   });
 
   useEffect(() => {
-    const justCreated = JSON.parse(localStorage.getItem("sl_last_signup"));
-    if (justCreated) {
-      setNotice(`Account created for ${justCreated.name} (${justCreated.role}). Credentials saved below!`);
-      localStorage.removeItem("sl_last_signup");
-      return;
+    const latestFromStorage = getSavedUsers();
+    const combined = latestFromStorage.length >= registeredUsers.length ? latestFromStorage : registeredUsers;
+    setSavedAccounts(combined);
+
+    try {
+      const justCreated = JSON.parse(localStorage.getItem("sl_last_signup"));
+      if (justCreated && justCreated.email) {
+        setForm({
+          email: justCreated.email,
+          password: justCreated.password || "",
+          role: justCreated.role || "user"
+        });
+        setNotice(
+          `Saved credentials for ${justCreated.name} (${justCreated.role}). Ready to log in or log out and return anytime.`
+        );
+        localStorage.removeItem("sl_last_signup");
+        return;
+      }
+    } catch {
+      // Ignore parse error
     }
 
     const r = searchParams.get("role");
     if (r === "admin" || r === "user") {
-      const matchingSaved = [...registeredUsers].reverse().find((u) => u.role === r);
+      const matchingSaved = [...combined].reverse().find((u) => u.role === r);
       if (matchingSaved) {
         setForm({
           email: matchingSaved.email,
-          password: matchingSaved.password,
+          password: matchingSaved.password || "",
           role: matchingSaved.role
         });
       } else {
@@ -74,7 +116,7 @@ export default function Login() {
   const fillAccount = (acc) => {
     setError("");
     setNotice("");
-    setForm({ email: acc.email, password: acc.password, role: acc.role });
+    setForm({ email: acc.email, password: acc.password || "", role: acc.role });
   };
 
   return (
@@ -108,9 +150,9 @@ export default function Login() {
             <Sparkles size={13} /> Demo User
           </button>
 
-          {registeredUsers.map((u) => (
+          {savedAccounts.map((u) => (
             <button
-              key={u.id}
+              key={`${u.role}-${u.email}-${u.id}`}
               type="button"
               onClick={() => fillAccount(u)}
               className="demo-chip"

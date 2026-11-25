@@ -6,12 +6,12 @@ const SEED_TEAMS = [
 ];
 
 const SEED_PLAYERS = [
-  { id: 1, name: "Rohit Sharma", team: "Mumbai Indians", role: "Batsman", age: 37, runs: 485, wickets: 0 },
-  { id: 2, name: "Jasprit Bumrah", team: "Mumbai Indians", role: "Bowler", age: 31, runs: 24, wickets: 21 },
+  { id: 1, name: "Rohit Sharma", team: "Mumbai Indians", role: "Batsman", age: 37, runs: 612, wickets: 0 },
+  { id: 2, name: "Sunil Narine", team: "Kolkata Knight Riders", role: "All-Rounder", age: 36, runs: 380, wickets: 28 },
   { id: 3, name: "Virat Kohli", team: "Royal Challengers", role: "Batsman", age: 36, runs: 540, wickets: 0 },
-  { id: 4, name: "MS Dhoni", team: "Chennai Super Kings", role: "Wicket-Keeper", age: 43, runs: 265, wickets: 0 },
-  { id: 5, name: "Ravindra Jadeja", team: "Chennai Super Kings", role: "All-Rounder", age: 36, runs: 290, wickets: 15 },
-  { id: 6, name: "Sunil Narine", team: "Kolkata Knight Riders", role: "All-Rounder", age: 36, runs: 380, wickets: 18 }
+  { id: 4, name: "Jasprit Bumrah", team: "Mumbai Indians", role: "Bowler", age: 31, runs: 24, wickets: 21 },
+  { id: 5, name: "MS Dhoni", team: "Chennai Super Kings", role: "Wicket-Keeper", age: 43, runs: 265, wickets: 0 },
+  { id: 6, name: "Ravindra Jadeja", team: "Chennai Super Kings", role: "All-Rounder", age: 36, runs: 290, wickets: 15 }
 ];
 
 const SEED_MATCHES = [
@@ -41,7 +41,11 @@ export function resetLeagueData() {
 
 export function getStored(key) {
   initLeagueData();
-  return JSON.parse(localStorage.getItem(key)) || [];
+  try {
+    return JSON.parse(localStorage.getItem(key)) || [];
+  } catch {
+    return [];
+  }
 }
 
 export function setStored(key, value) {
