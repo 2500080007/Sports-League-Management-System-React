@@ -1,16 +1,30 @@
-# React + Vite
+# Sports League Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A role-based Sports League Management System built with **React** and **Vite**, using `localStorage` for authentication and tournament data persistence, and configured for deployment on **Vercel**.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Role-Based Authentication (`localStorage`):** Sign up and log in as **Admin** or **User**, with saved credentials pre-filling on future logins and route protection (`/admin` and `/user`).
+- **Live Broadcast Ticker & Tournament Overview:** Displays upcoming fixtures, completed match scorecards, and live league standings.
+- **Admin Module (`/admin`):**
+  - Add and remove color-coded franchises and players.
+  - Schedule fixtures and run a 20-over live match simulator or post manual scorecards.
+  - Auto-calculates points, Net Run Rate (NRR), and Top-4 playoff bracket seeding.
+- **User Module (`/user`):**
+  - View the live points table, NRR bars, and playoff qualification bracket.
+  - Predict upcoming match winners and earn Fan XP.
+  - Filter squad players by role, search by name/team, and track Orange Cap, Purple Cap, and MVP scores.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React + Vite
+- React Router (`react-router-dom`)
+- Lucide Icons (`lucide-react`)
+- Browser `localStorage`
+- Vercel (`vercel.json` SPA rewrite rules)
 
-## Expanding the Oxlint configuration
+## Run Locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm install
+npm run dev
